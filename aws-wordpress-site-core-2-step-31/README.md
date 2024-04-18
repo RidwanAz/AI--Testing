@@ -8,7 +8,7 @@ Your task as an AWS Solution Architect is to design and implement a wordpress so
 
 We will build a secure infrastructure inside AWS VPC (Virtual Private Cloud) network for the agency that uses **WordPress CMS** for its main business website. As part of the company’s desire for improved security and performance, a **reverse proxy technology from NGINX** will be deployed to achieve this.
 
-![our architecture](./images/architecture.PNG)
+![our architecture](./images/aws-wordpress-architecture.drawio.PNG)
 
 ## STARTING OFF OUR PROJECT
 
