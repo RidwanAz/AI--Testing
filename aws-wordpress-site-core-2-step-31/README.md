@@ -43,13 +43,11 @@ Always make reference to the architectural diagram and ensure that your configur
 
 ![subnets](./images/subnets.PNG)
 
-3. Create a route table (public) and associate it with public subnets
-  - Name: onyi-public-rtb
+3. Create a route table (public) and associate it with public subnets. (Name: onyi-public-rtb)
 
-4. Create a route table (private) and associate it with private subnets
-  - Name: onyi-private-rtb 
+4. Create a route table (private) and associate it with private subnets. (Name: onyi-private-rtb) 
 
-5. Create an Internet Gateway (onyi-igw) and attach to our VPC
+5. Create an Internet Gateway (onyi-igw) and attach to our VPC.
 
 6. Edit a route in public route table, and associate it with the Internet Gateway. (This is what allows a public subnet to be accesible from the Internet)
 
@@ -164,7 +162,7 @@ Provision EC2 Instances for Nginx
 6. Ensure that you have health checks for both EC2 and ALB
 7. The desired capacity is 1
 8. Minimum capacity is 1
-9. Maximum capacity is 1
+9. Maximum capacity is 5
 10. Set scale out if CPU utilization reaches 90%
 11. Ensure there is an SNS topic to send scaling notifications
 12. Add tags to tag new instances
@@ -194,7 +192,7 @@ Since our bastion will not be placed under a load balancer, there wont be any ne
 3. Select both public subnets
 4. The desired capacity is 1
 5. Minimum capacity is 1
-6. Maximum capacity is 1
+6. Maximum capacity is 3
 7. Set scale out if CPU utilization reaches 90%
 8. Ensure there is an SNS topic to send scaling notifications
 9. Add tags to tag new instances
@@ -229,34 +227,34 @@ Provision the EC2 Instances for Webservers
 6. Ensure that you have health checks for both EC2 and ALB
 7. The desired capacity is 1
 8. Minimum capacity is 1
-9. Maximum capacity is 1
+9. Maximum capacity is 5
 10. Set scale out if CPU utilization reaches 90%
 11. Ensure there is an SNS topic to send scaling notifications
 12. Add tags to tag new instances
 
 ##### SETUP COMPUTE RESOURCES SUMMARY
 
-- Provision three redhat instances for nginx, bastion and webservers.
+1. Provision three redhat instances for nginx, bastion and webservers.
 
-- Install the neccessary software and certificates using the guild from installation.md file. When creating the certificate use the private dns name of the instance for the common name. 
+2. Install the neccessary software and certificates using the guild from installation.md file. When creating the certificate use the private dns name of the instance for the common name. 
 
-- Create an AMI out of the EC2 instance
+3. Create an AMI out of the EC2 instance
 
 ![ami](./images/ami.PNG)
 
-- Configure Target Groups Nginx and webservers (wordpress) and not for bastion because bastion will not be behind the loadbalancer.
+4. Configure Target Groups Nginx and webservers (wordpress) and not for bastion because bastion will not be behind the loadbalancer.
 
 ![target group](./images/target-group.PNG)
 
-- Create the external and internal loadbalancers because you will need to update the reverse.conf file with the endpoint of the internal loadbalancer while creating launch template.
+5. Create the external and internal loadbalancers because you will need to update the reverse.conf file with the endpoint of the internal loadbalancer while creating launch template.
 
-- Update the reverse.conf file with the endpoint of the internal loadbalancer, the wordpress-userdata with the mount point of the efs file system and the rds endpoint with its credentials. 
+6. Update the reverse.conf file with the endpoint of the internal loadbalancer, the wordpress-userdata with the mount point of the efs file system and the rds endpoint with its credentials. 
 
-- Prepare Launch Template For Nginx, bastion, wordpress webservers. Use the userdata for the respective server.
+7. Prepare Launch Template For Nginx, bastion, wordpress webservers. Use the userdata for the respective server.
 
 ![launch templates](./images/launch-templates.PNG)
 
-- Create and configure Autoscaling For bastion, nginx and webservers
+8. Create and configure Autoscaling For bastion, nginx and webservers
 
 ![auto scaling group](./images/autoscalinggroup.PNG)
 
