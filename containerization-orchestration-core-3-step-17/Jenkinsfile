@@ -6,7 +6,6 @@ pipeline {
         DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
         CONTAINER_NAME = "nginx-onyeka-app"
         PORT_MAPPING = '8085:80' // Port mapping for container (host_port:container_port)
-        // DOCKERHUB_USERNAME = credentials('dockerhub-username')
         DOCKERHUB_PASSWORD = credentials('dockerhub-password')
         DOCKERHUB_USERNAME = "onyekaonu"
         DOCKER_TAG = "0.2"
@@ -60,7 +59,7 @@ pipeline {
                     // Login to Docker Hub
                     sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
                     // Push the Docker image to Docker Hub
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
