@@ -2,14 +2,23 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE = 'nginx-onyeka-app:0.2'
-        DOCKERFILE_PATH = 'containerization-orchestration-core-3-step-17/Dockerfile' // Path to your Dockerfile
+        DOCKER_IMAGE = "nginx-onyeka-app:0.2"
+        DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
     }
-    
+
     stages {
+        stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+    
         stage('Checkout') {
             steps {
-                git 'https://github.com/onyeka-hub/darey.io-capstone-projects.git'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
+
             }
         }
         
