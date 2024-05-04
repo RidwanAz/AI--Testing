@@ -75,7 +75,7 @@ pipeline {
 
 ![steps](./images/step5.PNG)
 
-Update the Jenkinsfile with the below snippet
+- To build the image, update the Jenkinsfile with the below snippet
 
 ```
 pipeline {
@@ -97,8 +97,7 @@ pipeline {
     
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
-
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-password', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
             }
         }
         
@@ -138,6 +137,46 @@ sudo usermod -aG docker jenkins
 
 sudo systemctl restart jenkins
 ```
+
+- To build and run the image, update the Jenkinsfile with the below snippet
+
+```
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'your-docker-image-name'
+        CONTAINER_NAME = 'your-container-name'
+        PORT_MAPPING = '8080:80' // Port mapping for container (host_port:container_port)
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your/repository.git'
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
+            }
+        }
+        
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT_MAPPING} ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+}
+
 
 - Ensure that Jenkins has permission to access your Docker registry (e.g., Docker Hub) if you're pushing the image there.
 
