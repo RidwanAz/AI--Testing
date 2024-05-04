@@ -1,51 +1,25 @@
 pipeline {
     agent any
-
-  stages {
-    stage("Initial cleanup"){
-      steps {
-        dir("${WORKSPACE}") {
-          deleteDir()
-        }
-      }
+    
+    environment {
+        DOCKER_IMAGE = 'nginx-onyeka-app:0.2'
+        DOCKERFILE_PATH = 'containerization-orchestration-core-3-step-17/Dockerfile' // Path to your Dockerfile
     }
     
-    stage('Build') {
-      steps {
-        script {
-          sh 'echo "Building Stage"'
-        }
-      }
-    }
-
-    stage('Test') {
-      steps {
-        script {
-          sh 'echo "Testing Stage"'
-        }
-      }
-    }
-
-    stage('Package') {
-      steps {
-        script {
-          sh 'echo "Packaging Stage"'
-        }
-      }
-    }
-
-    stage('Deploy') {
-      steps {
-        script {
-          sh 'echo "Deploying Stage"'
-        }
-      }
-    }
-
-    stage("Clean up workspace after build") {
-          steps {
-            cleanWs()
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/onyeka-hub/darey.io-capstone-projects.git'
             }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
+                }
+            }
+        }       
     }
-  }
 }
