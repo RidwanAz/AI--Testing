@@ -82,14 +82,23 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE = 'your-docker-image-name'
-        DOCKERFILE_PATH = 'Dockerfile' // Path to your Dockerfile
+        DOCKER_IMAGE = "nginx-onyeka-app:0.2"
+        DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
     }
-    
+
     stages {
+        stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+    
         stage('Checkout') {
             steps {
-                git 'https://github.com/your/repository.git'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'jenkins-github', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
+
             }
         }
         
@@ -100,16 +109,7 @@ pipeline {
                     sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
                 }
             }
-        }
-        
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    // Push the Docker image to a registry (e.g., Docker Hub)
-                    sh "docker push ${DOCKER_IMAGE}"
-                }
-            }
-        }
+        }       
     }
 }
 ```
@@ -119,6 +119,25 @@ pipeline {
 - Set DOCKERFILE_PATH to the path of your Dockerfile relative to the repository root.
 
 - Replace 'https://github.com/your/repository.git' with the URL of your Git repository.
+
+Blocker
+
+![permission error](./images/permission-error.PNG)
+
+Solution
+
+The error message indicates that the Jenkins user doesn't have permission to access the Docker daemon socket (/var/run/docker.sock). This is because the Jenkins user doesn't have the necessary permissions to interact with Docker.
+
+To fix this issue, you need to grant Jenkins permission to access the Docker daemon socket. You can do this by adding the Jenkins user to the Docker group.
+
+Here's how you can do it. SSH into your Jenkins server. Run the following command to add the Jenkins user to the Docker group.
+
+```
+sudo usermod -aG docker jenkins
+# After adding the Jenkins user to the Docker group, restart the Jenkins service to apply the changes
+
+sudo systemctl restart jenkins
+```
 
 - Ensure that Jenkins has permission to access your Docker registry (e.g., Docker Hub) if you're pushing the image there.
 
