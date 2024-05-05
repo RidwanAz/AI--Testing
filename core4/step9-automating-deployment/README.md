@@ -196,15 +196,27 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE = 'your-docker-image-name'
-        DOCKERHUB_USERNAME = credentials('dockerhub-username')
+        DOCKER_IMAGE = "nginx-onyeka-app"
+        DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
+        CONTAINER_NAME = "nginx-onyeka-app"
+        PORT_MAPPING = '8085:80' // Port mapping for container (host_port:container_port)
         DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        DOCKERHUB_USERNAME = "onyekaonu"
+        DOCKER_TAG = "0.2"
     }
-    
+
     stages {
+        stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+    
         stage('Checkout') {
             steps {
-                git 'https://github.com/your/repository.git'
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-password', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
             }
         }
         
@@ -212,32 +224,52 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image
-                    sh "docker build -t ${DOCKER_IMAGE} ."
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
                 }
             }
         }
-        
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT_MAPPING} ${DOCKER_IMAGE}"
+                }
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                script {
+                    // Tag the Docker image
+                    sh "docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
         stage('Push to Docker Hub') {
             steps {
                 script {
                     // Login to Docker Hub
                     sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
                     // Push the Docker image to Docker Hub
-                    sh "docker push ${DOCKER_IMAGE}"
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
+
     }
 }
 ```
 
-- Specify the Docker Hub username and password as Jenkins credentials IDs (dockerhub-username and dockerhub-password).
+- Create a credentials (secret text) for the dockerhub password and specify the Docker Hub password as Jenkins credentials IDs (dockerhub-password).
+
+![jenkins password credentials](./images/jenkins-credentials-password.PNG)
 
 - After building the Docker image, the pipeline will log in to Docker Hub using the provided credentials and push the image to the Docker Hub registry.
 
-- Ensure that the Docker image is built with the correct name and tag (DOCKER_IMAGE).
+- Ensure that the Docker image is built with the correct name and tag ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}".
 
-- Ensure that Jenkins has permission to access your Docker registry (e.g., Docker Hub) if you're pushing the image there.
+![successfull push](./images/successful-push.PNG)
 
-You may need to configure Jenkins credentials to access your Git repository and Docker registry.
-Once you have the pipeline defined, you can create a new Jenkins pipeline job and paste this script into the Pipeline section. Then, Jenkins will automatically execute this pipeline whenever a new build is triggered.
+![successfull dockerhub](./images/dockerhub-success.PNG)
