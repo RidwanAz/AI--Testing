@@ -8,6 +8,8 @@
 
 Use the jenkins-script.sh to install jenkins on ubuntu
 
+Use the ~\darey.io-capstone-projects\containerization-orchestration-core-3-step-17\docker-ubuntu-installation.sh for installing docker on the jenkins server.
+
 ![steps](./images/step2.PNG) 
 
 Use this for creating the webhook : `http://13.40.219.176:8080/github-webhook/`
@@ -273,3 +275,159 @@ pipeline {
 ![successfull push](./images/successful-push.PNG)
 
 ![successfull dockerhub](./images/dockerhub-success.PNG)
+
+The Jenkinsfile that will delete any running container to create a new one
+
+```
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = "nginx-onyeka-app"
+        DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
+        CONTAINER_NAME = "nginx-onyeka-app"
+        PORT_MAPPING = '8085:80' // Port mapping for container (host_port:container_port)
+        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        DOCKERHUB_USERNAME = "onyekaonu"
+        DOCKER_TAG = "0.2"
+    }
+
+    stages {
+        stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+    
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-password', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
+            }
+        }
+
+        stage('Delete any running Docker Container') {
+            steps {
+                script {
+                    // Delete the Docker container
+                    sh "docker rm -f ${CONTAINER_NAME}"
+                    // Delete the Docker images
+                    sh "docker rmi -f ${DOCKER_IMAGE}"
+                    // Use below if you are building the image with the same tag again otherwise comment out
+                    sh "docker rmi -f ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT_MAPPING} ${DOCKER_IMAGE}"
+                }
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                script {
+                    // Tag the Docker image
+                    sh "docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+    }
+}
+```
+
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = "nginx-onyeka-app"
+        DOCKERFILE_PATH = "${WORKSPACE}/containerization-orchestration-core-3-step-17/Dockerfile" // Path to your Dockerfile
+        CONTAINER_NAME = "nginx-onyeka-app"
+        PORT_MAPPING = '8085:80' // Port mapping for container (host_port:container_port)
+        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        DOCKERHUB_USERNAME = "onyekaonu"
+        DOCKER_TAG = "0.2"
+    }
+
+    stages {
+        stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
+        }
+    
+        stage('Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-password', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${DOCKERFILE_PATH} ."
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    // Run the Docker container
+                    sh "docker run -d --name ${CONTAINER_NAME} -p ${PORT_MAPPING} ${DOCKER_IMAGE}"
+                }
+            }
+        }
+
+        stage('Tag Docker Image') {
+            steps {
+                script {
+                    // Tag the Docker image
+                    sh "docker tag ${DOCKER_IMAGE} ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    // Login to Docker Hub
+                    sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+
+    }
+}
+

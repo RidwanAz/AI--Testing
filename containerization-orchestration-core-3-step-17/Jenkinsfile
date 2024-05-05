@@ -25,6 +25,19 @@ pipeline {
                 checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github-password', url: 'https://github.com/onyeka-hub/darey.io-capstone-projects.git']])
             }
         }
+
+        stage('Delete any running Docker Container') {
+            steps {
+                script {
+                    // Delete the Docker container
+                    sh "docker rm -f ${CONTAINER_NAME}"
+                    // Delete the Docker images
+                    sh "docker rmi -f ${DOCKER_IMAGE}"
+                    // Use below if you are building the image with the same tag again otherwise comment out
+                    sh "docker rmi -f ${DOCKERHUB_USERNAME}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
         
         stage('Build Docker Image') {
             steps {
