@@ -136,7 +136,7 @@ Create an AMI out of the EC2 instance.
 Provision EC2 Instances for Nginx
 
 1. Create an EC2 Instance based on Redhat Amazon Machine Image (AMI).
-2. Ensure that it has the following software installed (telnet htop git net-tools chrony). Refer to installation.md file for bastion ami installation.
+2. Ensure that it has the following software installed (telnet htop git net-tools chrony). Refer to installation.md file for nginx ami installation.
 4. Install the neccessary certificates using the guild from installation.md file.
 3. Create an AMI out of the EC2 instance
 

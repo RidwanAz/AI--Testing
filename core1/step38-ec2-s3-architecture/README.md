@@ -3,6 +3,7 @@
 ## Creating S3 bucket
 
 1. Create an s3 bucket with a unique name.
+
 ![create s3 bucket](./images/create-bucket.PNG)
 
 ![create s3 bucket](./images/create-bucket2.PNG)
@@ -13,9 +14,11 @@
 - Click on your bucket name
 
 - Click on your Properties tab and scrow down
+
 ![bucket properties](./images/bucket-properties.PNG)
 
 - Edit Static website hosting and Configure as shown below and save
+
 ![s3 webserver configuration](./images/website-hosting.PNG)
 
 ![s3 webserver configuration](./images/static-website.PNG)
@@ -26,6 +29,7 @@ and then click on ` Make public using ACL`
 ![making object public](./images/make-public.PNG)
 
 4. Testing from the s3 bucket. Copy the Object url and run on the browser
+
 ![from s3](./images/from-s3.PNG)
 
 ## Configure a webserver as a reverse proxy
@@ -70,4 +74,13 @@ sudo systemctl reload nginx
 ```
 
 4. Testing from the webserver
+
 ![from webserver](./images/from-webserver.PNG)
+
+### Troubleshooting
+
+```
+sudo rm /etc/nginx/sites-enabled/default
+sudo chown -R www-data:www-data /var/www/html
+sudo tail -f /var/log/nginx/error.log
+```

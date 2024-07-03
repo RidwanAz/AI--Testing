@@ -19,7 +19,7 @@ Use this for creating the webhook : `http://13.40.219.176:8080/github-webhook/`
 ![steps](./images/step4.PNG)
 
 For testing our webhook, let us use the Jenkinsfile below
-```
+```groovy
 pipeline {
     agent any
 
@@ -79,7 +79,7 @@ pipeline {
 
 - To build the image, update the Jenkinsfile with the below snippet
 
-```
+```groovy
 pipeline {
     agent any
     
@@ -142,7 +142,7 @@ sudo systemctl restart jenkins
 
 - To build and run the image, update the Jenkinsfile with the below snippet
 
-```
+```groovy
 pipeline {
     agent any
     
@@ -193,7 +193,7 @@ pipeline {
 
 - To build, run the image and push to dockerhub, update the Jenkinsfile with the below snippet
 
-```
+```groovy
 pipeline {
     agent any
     
@@ -278,7 +278,7 @@ pipeline {
 
 The Jenkinsfile that will delete any running container to create a new one
 
-```
+```groovy
 pipeline {
     agent any
     
